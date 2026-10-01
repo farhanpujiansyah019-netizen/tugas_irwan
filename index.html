@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Data Siswa</title>
+<style>
+*{box-sizing:border-box}
+body{
+font-family:Arial;margin:0;padding:20px;min-height:100vh;
+background:linear-gradient(135deg,#1e3a8a,#7c3aed,#9333ea)
+}
+.box{
+max-width:700px;margin:auto;background:#fffffff5;padding:25px;
+border-radius:20px;box-shadow:0 15px 40px #0006
+}
+h1{text-align:center;color:#2563eb}
+h3{text-align:center}
+input,button,select{
+padding:11px;margin:5px;border-radius:8px;border:1px solid #ddd
+}
+input{width:90%}
+button{
+background:#2563eb;color:white;border:0;cursor:pointer
+}
+button:hover{opacity:.8;transform:scale(1.02)}
+.danger{background:#ef4444}
+.logout{background:#f59e0b}
+.save{background:#16a34a}
+.purple{background:#7c3aed}
+.gray{background:#64748b}
+#loginBox{
+background:
+linear-gradient(#0008,#0008),
+url("https://images.unsplash.com/photo-1562774053-701939374585")
+center/cover;
+padding:40px 20px;
+border-radius:18px;
+color:white;
+text-align:center
+}
+#loginBox h3{
+color:white;font-size:27px
+}
+#loginBox p{color:white}
+#loginBox input{
+background:#ffffffe8;border:none
+}
+#loginBox button{
+background:white;color:#2563eb;font-weight:bold
+}
+.dark{
+background:#111827;
+color:white
+}
+.dark .box{background:#1f2937}
+.dark input,.dark select{background:#374151;color:white;border-color:#4b5563}
+.info{
+display:flex;justify-content:space-around;
+background:#eef2ff;padding:15px;
+border-radius:10px;margin:15px 0;
+flex-wrap:wrap;gap:10px
+}
+table{
+width:100%;border-collapse:collapse;margin-top:15px
+}
+th,td{
+padding:10px;border-bottom:1px solid #ddd;
+text-align:center
+}
+th{background:#2563eb;color:white}
+.lulus{color:green;font-weight:bold}
+.gagal{color:red;font-weight:bold}
+#data{overflow-x:auto}
+.fitur{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:5px;
+margin-top:10px
+}
+.barbox{
+margin-top:15px;
+background:#eef2ff;
+padding:15px;
+border-radius:10px;
+color:#111
+}
+.dark .barbox{background:#374151;color:white}
+.bar{
+height:22px;
+background:#2563eb;
+border-radius:8px;
+margin:7px 0;
+color:white;
+font-size:12px;
+padding:4px 8px;
+min-width:20px
+}
+.rank{
+display:flex;
+justify-content:space-between;
+padding:9px;
+margin:5px 0;
+background:#f3f4f6;
+border-radius:8px;
+color:#111
+}
+.dark .rank{background:#374151;color:white}
+.modal{
+display:none;
+position:fixed;
+inset:0;
+background:#0008;
+align-items:center;
+justify-content:center;
+padding:20px;
+z-index:5
+}
+.modalBox{
+background:white;
+padding:20px;
+border-radius:15px;
+width:100%;
+max-width:400px
+}
+.dark .modalBox{background:#1f2937;color:white}
+@media(max-width:600px){
+body{padding:10px}
+.box{padding:15px}
+.info{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+<div class="box">
+<button onclick="mode()">🌙 Mode</button>
+<h1>🎓 Data Siswa</h1>
+<div id="loginBox">
+<h3>🏫 Selamat Datang</h3>
+<p>Silakan login untuk masuk ke Data Siswa</p>
+<input id="username"
+placeholder="👤 Username"><br>
+<input id="password"
+type="password"
+placeholder="🔑 Password"><br>
+<button onclick="login()">🚀 Login</button>
+</div>
+<div id="app" style="display:none">
+<h3>👨‍🎓 Input Data Siswa</h3>
+<input id="nama" placeholder="Nama Siswa"><br>
+<input id="kelas" placeholder="Kelas"><br>
+<input id="nilai" type="number"
+placeholder="Nilai (0-100)"><br>
+<button onclick="tambah()">➕ Tambah</button>
+<button class="danger"
+onclick="resetForm()">🧹 Reset</button>
+<button class="save"
+onclick="simpan()">💾 Simpan</button>
+<button class="logout"
+onclick="logout()">🚪 Logout</button>
+<div class="info">
+<span>👥 Siswa: <b id="jumlah">0</b></span>
+<span>✅ Lulus: <b id="lulus">0</b></span>
+<span>❌ Gagal: <b id="gagal">0</b></span>
+<span>📊 Rata-rata: <b id="rata">0</b></span>
+<span>🏆 Tertinggi: <b id="tertinggi">0</b></span>
+</div>
+<input id="cari"
+placeholder="🔍 Cari nama..."
+oninput="tampil()">
+<div class="fitur">
+<select id="filterKelas" onchange="tampil()">
+<option value="">🏫 Semua Kelas</option>
+</select>
+<select id="urutan" onchange="tampil()">
+<option value="">↕️ Urutkan</option>
+<option value="tinggi">Nilai Tertinggi</option>
+<option value="rendah">Nilai Terendah</option>
+<option value="nama">Nama A-Z</option>
+</select>
+<button class="purple" onclick="exportExcel()">📊 Export Excel</button>
+<button class="gray" onclick="window.print()">🖨️ Cetak</button>
+</div>
+<div id="data"></div>
+<div class="barbox">
+<h3>📊 Grafik Nilai</h3>
+<div id="grafik"></div>
+</div>
+<div class="barbox">
+<h3>🏆 Top 5 Siswa</h3>
+<div id="ranking"></div>
+</div>
+</div>
+</div>
+<div id="modal" class="modal">
+<div class="modalBox">
+<h3>✏️ Edit Data Siswa</h3>
+<input id="editNama" placeholder="Nama Siswa"><br>
+<input id="editKelas" placeholder="Kelas"><br>
+<input id="editNilai" type="number" placeholder="Nilai (0-100)"><br>
+<button class="save" onclick="simpanEdit()">💾 Simpan</button>
+<button class="danger" onclick="tutupEdit()">❌ Batal</button>
+</div>
+</div>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script>
+let siswa=JSON.parse(localStorage.siswa||"[]");
+let editIndex=-1;
+function login(){
+let u=username.value,p=password.value;
+if(u=="112233"&&p=="i dan p"){
+loginBox.style.display="none";
+app.style.display="block";
+alert("✅ Login berhasil!");
+tampil();
+}else{
+alert("❌ Username atau password salah!");
+}
+}
+function logout(){
+app.style.display="none";
+loginBox.style.display="block";
+username.value="";
+password.value="";
+}
+function tambah(){
+let n=nama.value.trim(),
+k=kelas.value.trim(),
+v=Number(nilai.value);
+if(!n||!k||nilai.value==""||v<0||v>100)
+return alert("⚠️ Isi data dengan benar!");
+siswa.push({nama:n,kelas:k,nilai:v});
+simpanData();
+resetForm();
+tampil();
+}
+function simpan(){
+simpanData();
+alert("💾 Data siswa berhasil disimpan!");
+}
+function simpanData(){
+localStorage.siswa=JSON.stringify(siswa);
+}
+function tampil(){
+let c=cari.value.toLowerCase();
+let fk=filterKelas.value;
+let ur=urutan.value;
+let hasil=siswa.filter(x=>
+x.nama.toLowerCase().includes(c) &&
+(!fk || x.kelas==fk)
+);
+if(ur=="tinggi")
+hasil.sort((a,b)=>b.nilai-a.nilai);
+if(ur=="rendah")
+hasil.sort((a,b)=>a.nilai-b.nilai);
+if(ur=="nama")
+hasil.sort((a,b)=>a.nama.localeCompare(b.nama));
+data.innerHTML=hasil.length?`<table>
+<tr>
+<th>Nama</th><th>Kelas</th><th>Nilai</th>
+<th>Predikat</th><th>Status</th><th>Aksi</th>
+</tr>
+${hasil.map(x=>{
+let p=x.nilai>=90?"A":
+x.nilai>=80?"B":
+x.nilai>=70?"C":"D";
+let l=x.nilai>=75;
+return `<tr>
+<td>${aman(x.nama)}</td>
+<td>${aman(x.kelas)}</td>
+<td>${x.nilai}</td>
+<td>${p}</td>
+<td class="${l?"lulus":"gagal"}">
+${l?"Lulus":"Tidak Lulus"}
+</td>
+<td>
+<button onclick="edit(${siswa.indexOf(x)})">✏️</button>
+<button class="danger"
+onclick="hapus(${siswa.indexOf(x)})">
+🗑️
+</button>
+</td>
+</tr>`
+}).join("")}
+</table>`:
+"<p>📭 Data tidak ditemukan.</p>";
+let l=siswa.filter(x=>x.nilai>=75).length;
+jumlah.innerText=siswa.length;
+lulus.innerText=l;
+gagal.innerText=siswa.length-l;
+let rataNilai=siswa.length?
+siswa.reduce((a,b)=>a+b.nilai,0)/siswa.length:0;
+rata.innerText=rataNilai.toFixed(1);
+tertinggi.innerText=siswa.length?
+Math.max(...siswa.map(x=>x.nilai)):0;
+buatFilter();
+buatGrafik();
+buatRanking();
+}
+function buatFilter(){
+let sekarang=filterKelas.value;
+let kelas=[...new Set(siswa.map(x=>x.kelas))].sort();
+filterKelas.innerHTML=
+'<option value="">🏫 Semua Kelas</option>'+
+kelas.map(k=>`<option value="${aman(k)}">${aman(k)}</option>`).join("");
+filterKelas.value=kelas.includes(sekarang)?sekarang:"";
+}
+function buatGrafik(){
+if(!siswa.length){
+grafik.innerHTML="<p>📭 Belum ada data.</p>";
+return;
+}
+let urut=[...siswa].sort((a,b)=>b.nilai-a.nilai).slice(0,10);
+grafik.innerHTML=urut.map(x=>`
+<div>
+<b>${aman(x.nama)} - ${x.nilai}</b>
+<div class="bar" style="width:${Math.max(5,x.nilai)}%">
+${x.nilai}
+</div>
+</div>
+`).join("");
+}
+function buatRanking(){
+if(!siswa.length){
+ranking.innerHTML="<p>📭 Belum ada data.</p>";
+return;
+}
+let top=[...siswa].sort((a,b)=>b.nilai-a.nilai).slice(0,5);
+ranking.innerHTML=top.map((x,i)=>`
+<div class="rank">
+<span>
+${i==0?"🥇":i==1?"🥈":i==2?"🥉":"🏅"}
+${aman(x.nama)}
+</span>
+<b>${x.nilai}</b>
+</div>
+`).join("");
+}
+function hapus(i){
+if(confirm("Hapus data ini?")){
+siswa.splice(i,1);
+simpanData();
+tampil();
+}
+}
+function edit(i){
+editIndex=i;
+editNama.value=siswa[i].nama;
+editKelas.value=siswa[i].kelas;
+editNilai.value=siswa[i].nilai;
+modal.style.display="flex";
+}
+function simpanEdit(){
+let n=editNama.value.trim();
+let k=editKelas.value.trim();
+let v=Number(editNilai.value);
+if(!n||!k||editNilai.value==""||v<0||v>100)
+return alert("⚠️ Isi data dengan benar!");
+siswa[editIndex]={nama:n,kelas:k,nilai:v};
+simpanData();
+tutupEdit();
+tampil();
+alert("✅ Data berhasil diubah!");
+}
+function tutupEdit(){
+modal.style.display="none";
+editIndex=-1;
+}
+function exportExcel(){
+if(!siswa.length)
+return alert("📭 Belum ada data untuk diexport!");
+let data=siswa.map(x=>{
+let p=x.nilai>=90?"A":
+x.nilai>=80?"B":
+x.nilai>=70?"C":"D";
+return {
+"Nama":x.nama,
+"Kelas":x.kelas,
+"Nilai":x.nilai,
+"Predikat":p,
+"Status":x.nilai>=75?"Lulus":"Tidak Lulus"
+};
+});
+let ws=XLSX.utils.json_to_sheet(data);
+let wb=XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(wb,ws,"Data Siswa");
+XLSX.writeFile(wb,"Data_Siswa.xlsx");
+alert("📊 Data berhasil dibuat menjadi file Excel!");
+}
+function resetForm(){
+nama.value="";
+kelas.value="";
+nilai.value="";
+}
+function mode(){
+document.body.classList.toggle("dark");
+}
+function aman(teks){
+return String(teks).replace(/[&<>"']/g,function(m){
+return {
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+}[m];
+});
+}
+</script>
+</body>
+</html>
